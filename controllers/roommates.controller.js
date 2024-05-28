@@ -20,6 +20,17 @@ const postRoommate = async (req, res) => {
     }
 }
 
+
+const postGasto = async (req, res) => {
+    try {
+        const {id, comentario, monto} = req.body;
+        const gasto = await roommatesModel.addGasto(id, comentario, monto);
+        return res.json( {gasto} )
+    } catch (error) {
+        handleErrorPostgre();
+    }
+}
+
 const getGastos = async (req, res) => {
     try {
         const gastos = await roommatesModel.allGastos();
@@ -56,5 +67,6 @@ export const roommatesController = {
     postRoommate,
     getGastos,
     updateGasto,
-    removeGasto
+    removeGasto,
+    postGasto
 }

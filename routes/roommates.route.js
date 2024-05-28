@@ -9,6 +9,8 @@ router.post('/roommate', roommatesController.postRoommate)
 
 router.get('/roommates', roommatesController.getRoommates)
 
+router.post('/gasto', roommatesController.postGasto)
+
 router.get('/gastos', roommatesController.getGastos)
 
 router.put('/gasto/:id', roommatesController.updateGasto)

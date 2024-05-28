@@ -21,6 +21,41 @@ const addRoomate = async (roommate) => {
     return rows[0]
 }
 
+const addGasto = async (id, comment, amount) => {
+    try {
+        await pool.query('BEGIN');
+        
+        const queryGasto = {
+            text: `UPDATE roommates SET cash = cash - $1 WHERE id = $2;`,
+            values: [amount, id]
+        };
+        await pool.query(queryGasto);
+        
+        const queryDeuda = {
+            text: `UPDATE roommates SET pay = pay + $1 WHERE id = $2;`,
+            values: [amount, id]
+        };
+        await pool.query(queryDeuda);
+        
+        
+        const queryTablaExpenses = {
+            text: `INSERT INTO expenses (roommate_id, amount, comment) VALUES
+            ($1, $2, $3) RETURNING *;`,
+            values: [id, amount, comment]
+        };
+        const {rows} = await pool.query(queryTablaExpenses);
+        
+        await pool.query('COMMIT');
+        
+        return rows[0]
+        
+    } catch (error) {
+        await pool.query('ROLLBACK');
+        console.log('Error al realizar el gasto', error);
+        return false;
+    }
+}
+
 const allGastos = async () => {
     const query = {
         text: `	SELECT expenses.id AS expenses_id, roommates.id AS roommate_id, roommates.name AS roommate_name, expenses.amount, expenses.comment
@@ -61,5 +96,6 @@ export const roommatesModel = {
     addRoomate,
     allGastos,
     updateExpend,
-    removeExpend
+    removeExpend,
+    addGasto
 }

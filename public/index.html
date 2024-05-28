@@ -21,7 +21,7 @@
     <div class="row w-100 m-auto">
       <div class="col-4">
         <h5>Roommates</h5>
-        <button class="btn text-white mb-2" onclick="nuevoRoommate()">
+        <button class="btn text-white mb-2" id="agregar-roommate">
           Agregar roommate
         </button>
         <table class="table">
@@ -30,7 +30,8 @@
             <th>Debe</th>
             <th>Recibe</th>
           </thead>
-          <tbody class="text-white" id="roommates"></tbody>
+          <tbody class="text-white" id="roommates">
+          </tbody>
         </table>
       </div>
       <div class="col-4">
@@ -56,11 +57,11 @@ Articulos de limpieza</textarea
               type="number"
               value="15000"
             />
-          </div>
-          <div class="d-block my-1">
-            <button class="btn text-white m-auto" onclick="agregarGasto()">
-              Agregar
-            </button>
+            <div class="d-block my-1">
+              <button class="btn text-white m-auto" id="agregar-gasto">
+                Agregar
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -128,6 +129,7 @@ Articulos de limpieza</textarea
       </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.js "
       crossorigin="anonymous"
@@ -142,119 +144,8 @@ Articulos de limpieza</textarea
       integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
       crossorigin="anonymous"
     ></script>
-
-    <script>
-      let roommates = [];
-      let gastos = [];
-      let gastoEditing = null;
-      const getRoommates = async () => {
-        const res = await fetch("http://localhost:3000/roommates");
-        const data = await res.json();
-        roommates = data.roommates;
-      };
-      const getGastos = async () => {
-        const res = await fetch("http://localhost:3000/gastos");
-        const data = await res.json();
-        gastos = data.gastos;
-      };
-
-      const imprimir = async () => {
-        try {
-          await getRoommates();
-          await getGastos();
-          $("#roommates").html("");
-          $("#roommatesSelect").html("");
-          $("#roommatesSelectModal").html("");
-          roommates.forEach((r) => {
-            $("#roommatesSelect").append(`
-          <option value="${r.nombre}">${r.nombre}</option>
-          `);
-            $("#roommatesSelectModal").append(`
-          <option value="${r.nombre}">${r.nombre}</option>
-          `);
-            $("#roommates").append(`
-                  <tr>
-                    <td>${r.nombre}</td>
-                    <td class="text-danger">${r.debe ? r.debe : "-"}</td>
-                    <td class="text-success">${r.recibe ? r.recibe : "-"}</td>
-                  </tr>
-              `);
-          });
-          $("#gastosHistorial").html("");
-          gastos.forEach((g) => {
-            $("#gastosHistorial").append(`
-                <tr>
-                  <td>${g.roommate}</td>
-                  <td>${g.descripcion}</td>
-                  <td>${g.monto}</td>
-                  <td class="d-flex align-items-center justify-content-between">
-                    <i class="fas fa-edit text-warning" onclick="editGasto('${g.id}')" data-toggle="modal" data-target="#exampleModal"></i>
-                    <i class="fas fa-trash-alt text-danger" onclick="deleteGasto('${g.id}')" ></i>
-                  </td>
-                </tr>
-              `);
-          });
-        } catch (e) {
-          console.log(e);
-        }
-      };
-
-      const nuevoRoommate = () => {
-        fetch("http://localhost:3000/roommate", { method: "POST" })
-          .then((res) => res.json())
-          .then(() => {
-            imprimir();
-          });
-      };
-
-      const agregarGasto = async () => {
-        const roommateSelected = $("#roommatesSelect").val();
-        const descripcion = $("#descripcion").val();
-        const monto = Number($("#monto").val());
-        await fetch("http://localhost:3000/gasto", {
-          method: "POST",
-          body: JSON.stringify({
-            roommate: roommateSelected,
-            descripcion,
-            monto,
-          }),
-        });
-        imprimir();
-      };
-
-      const deleteGasto = async (id) => {
-        await fetch("http://localhost:3000/gasto?id=" + id, {
-          method: "DELETE",
-        });
-        imprimir();
-      };
-
-      const updateGasto = async () => {
-        const roommateSelected = $("#roommatesSelectModal").val();
-        const descripcion = $("#descripcionModal").val();
-        const monto = Number($("#montoModal").val());
-        await fetch("http://localhost:3000/gasto?id=" + gastoEditing, {
-          method: "PUT",
-          body: JSON.stringify({
-            roommate: roommateSelected,
-            descripcion,
-            monto,
-          }),
-        });
-        $("#exampleModal").modal("hide");
-        imprimir();
-      };
-
-      const editGasto = (id) => {
-        gastoEditing = id;
-        const { roommate, descripcion, monto } = gastos.find((g) => g.id == id);
-        $("#roommatesSelectModal").val(roommate);
-        $("#descripcionModal").html(descripcion);
-        $("#montoModal").val(monto);
-      };
-
-      imprimir();
-    </script>
+    <script src="./js/app.js"></script>
+ 
 
     <style>
       body {

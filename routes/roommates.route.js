@@ -13,9 +13,9 @@ router.post('/gasto', roommatesController.postGasto)
 
 router.get('/gastos', roommatesController.getGastos)
 
-router.put('/gasto/:id', roommatesController.updateGasto)
+router.put('/gasto', roommatesController.updateGasto)
 
-router.delete('/gasto/:id', roommatesController.removeGasto)
+router.delete('/gasto', roommatesController.removeGasto)
 
 
 export default router;

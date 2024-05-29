@@ -6,7 +6,7 @@ const getRoommates = async (req, res) => {
         const roommates = await roommatesModel.allRoommates();
         return res.json( {roommates} )
     } catch (error) {
-        handleErrorPostgre();
+        handleErrorPostgre(error);
     }
 }
 
@@ -16,7 +16,7 @@ const postRoommate = async (req, res) => {
         const roommate = await roommatesModel.addRoomate(name);
         return res.json( {roommate} )
     } catch (error) {
-        handleErrorPostgre();
+        handleErrorPostgre(error);
     }
 }
 
@@ -27,7 +27,7 @@ const postGasto = async (req, res) => {
         const gasto = await roommatesModel.addGasto(id, comentario, monto);
         return res.json( {gasto} )
     } catch (error) {
-        handleErrorPostgre();
+        handleErrorPostgre(error);
     }
 }
 
@@ -36,28 +36,27 @@ const getGastos = async (req, res) => {
         const gastos = await roommatesModel.allGastos();
         return res.json( {gastos} )
     } catch (error) {
-        handleErrorPostgre();
+        handleErrorPostgre(error);
     }
 }
 
 const updateGasto = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { amount, comment } = req.body;
-        const gastoUpdated = await roommatesModel.updateExpend({ id, amount, comment });
+        const {idGasto, idRoommate , comentarioNuevo, montoNuevo } = req.body;
+        const gastoUpdated = await roommatesModel.updateExpend({ idGasto, idRoommate, comentarioNuevo, montoNuevo });
         return res.json( {gastoUpdated} )
     } catch (error) {
-        handleErrorPostgre();
+        handleErrorPostgre(error);
     }
 }
 
 const removeGasto = async (req, res) => {
     try {
-        const { id } = req.params;
-        const gasto = await roommatesModel.removeExpend(id);
+        const { idGasto, idRoommate } = req.body;
+        const gasto = await roommatesModel.removeExpend(idGasto, idRoommate);
         return res.json( {gasto} )
     } catch (error) {
-        handleErrorPostgre();
+        handleErrorPostgre(error);
     }
 }
 

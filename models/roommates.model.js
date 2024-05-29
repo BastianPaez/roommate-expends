@@ -66,27 +66,97 @@ const allGastos = async () => {
 }
 
 const updateExpend = async (expend) => {
-    const query = {
-        text: `UPDATE expenses
-                SET amount = $2,
-                    comment = $3
-                WHERE id = $1
-                RETURNING *;`,
-        values: [expend.id, expend.amount, expend.comment]
+
+    try {
+        await pool.query('BEGIN;');
+        const oldAmountQuery = {
+            text: `SELECT amount FROM expenses WHERE id = $1;`,
+            values: [expend.idGasto]
+        }
+        const oldData = await pool.query(oldAmountQuery)
+        const oldAmount = oldData.rows[0].amount
+
+        const returnPayQuery = {
+            text: `UPDATE roommates SET pay = pay - $1 WHERE id = $2;`,
+            values: [oldAmount, expend.idRoommate]
+        }
+        await pool.query(returnPayQuery)
+
+        const returnCashQuery = {
+            text: `UPDATE roommates SET cash = cash + $1 WHERE id = $2;`,
+            values: [oldAmount, expend.idRoommate]
+        };
+        await pool.query(returnCashQuery);
+
+        const queryGasto = {
+            text: `UPDATE roommates SET cash = cash - $1 WHERE id = $2;`,
+            values: [expend.montoNuevo, expend.idRoommate]
+        };
+        await pool.query(queryGasto);
+        
+        const queryDeuda = {
+            text: `UPDATE roommates SET pay = pay + $1 WHERE id = $2;`,
+            values: [expend.montoNuevo, expend.idRoommate]
+        };
+        await pool.query(queryDeuda);
+
+        const query = {
+            text: `UPDATE expenses
+                    SET amount = $2,
+                        comment = $3
+                    WHERE id = $1
+                    RETURNING *;`,
+            values: [expend.idGasto, expend.montoNuevo, expend.comentarioNuevo]
+        }
+        const { rows } = await pool.query(query);
+
+        await pool.query('COMMIT');
+
+        return rows
+    } catch (error) {
+        console.log(error)
+        await pool.query('ROLLBACK');
     }
-    const { rows } = await pool.query(query);
-    return rows
+
 }
 
-const removeExpend = async (id) => {
-    const query = {
-        text: `DELETE FROM expenses
-        WHERE id = $1
-        RETURNING *;`,
-        values: [id]
+const removeExpend = async (idGasto, idRoommate) => {
+    try {
+        const oldAmountQuery = {
+            text: `SELECT amount FROM expenses WHERE id = $1;`,
+            values: [idGasto]
+        }
+        const oldData = await pool.query(oldAmountQuery)
+        const oldAmount = oldData.rows[0].amount
+    
+        const returnPayQuery = {
+            text: `UPDATE roommates SET pay = pay - $1 WHERE id = $2;`,
+            values: [oldAmount, idRoommate]
+        }
+        await pool.query(returnPayQuery)
+    
+        const returnCashQuery = {
+            text: `UPDATE roommates SET cash = cash + $1 WHERE id = $2;`,
+            values: [oldAmount, idRoommate]
+        };
+        await pool.query(returnCashQuery);
+    
+        const query = {
+            text: `DELETE FROM expenses
+            WHERE id = $1
+            RETURNING *;`,
+            values: [idGasto]
+        }
+        const { rows } = await pool.query(query);
+    
+        await pool.query('COMMIT');
+        return rows[0]
+    } catch (error) {
+        console.log(error)
+        await pool.query('ROLLBACK');
     }
-    const { rows } = await pool.query(query);
-    return rows[0]
+
+
 }
 
 

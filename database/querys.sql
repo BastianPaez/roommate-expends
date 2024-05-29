@@ -14,24 +14,3 @@ CREATE TABLE expenses (
     FOREIGN KEY (roommate_id) REFERENCES roommates(id)
 );
 
-
-INSERT INTO roommates (id, name) VALUES
-    ('V1StGXR8_Z5jdHi6B-myT5', 'GG GG 69');
-	
-INSERT INTO expenses (roommate_id, amount, comment) VALUES
-    ('V1StGXR8_Z5jdHi6B-myT1', 200, 'Compra de alimentos'),
-    ('V1StGXR8_Z5jdHi6B-myT2', 150, 'Pago de servicios públicos'),
-    ('V1StGXR8_Z5jdHi6B-myT3', 300, 'Reparación de electrodomésticos');
-	
-	SELECT 
-	expenses.id AS expenses_id,
-    roommates.id AS roommate_id,
-    roommates.name AS roommate_name,
-    expenses.amount,
-    expenses.comment
-FROM 
-    roommates
-INNER JOIN 
-    expenses
-ON 
-    roommates.id = expenses.roommate_id;
